@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	allowedModelPrefixes = []string{"gpt-4o", "gpt-4-1106-preview", "gpt-4.1", "o3", "o4", "gpt-3.5"}
+	allowedModelPrefixes []string
 	costLimitUSD         float64
 	modelPricing         = make(map[string]ModelPricing)
 	totalCost            = 0.0
@@ -143,7 +143,43 @@ func loadModelPricing(filename string) error {
 	}
 
 	log.Printf("Loaded pricing for %d models", len(modelPricing))
+	
+	// Generate allowed model prefixes from loaded models
+	generateAllowedPrefixes()
+	
 	return nil
+}
+
+func generateAllowedPrefixes() {
+	prefixSet := make(map[string]bool)
+	
+	for model := range modelPricing {
+		// Extract meaningful prefixes from model names
+		parts := strings.Split(model, "-")
+		if len(parts) > 0 {
+			// Add the first part (e.g., "gpt" from "gpt-4o")
+			if len(parts[0]) > 0 {
+				prefixSet[parts[0]] = true
+			}
+			
+			// Add first two parts if meaningful (e.g., "gpt-4o" from "gpt-4o-2024-08-06")
+			if len(parts) >= 2 {
+				prefix := parts[0] + "-" + parts[1]
+				prefixSet[prefix] = true
+			}
+		}
+		
+		// Also add the full model name as prefix
+		prefixSet[model] = true
+	}
+	
+	// Convert set to slice
+	allowedModelPrefixes = make([]string, 0, len(prefixSet))
+	for prefix := range prefixSet {
+		allowedModelPrefixes = append(allowedModelPrefixes, prefix)
+	}
+	
+	log.Printf("Generated %d allowed model prefixes: %v", len(allowedModelPrefixes), allowedModelPrefixes)
 }
 
 func parseFloat(s string) (float64, error) {

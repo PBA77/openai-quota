@@ -61,6 +61,29 @@ func resetGlobalState() {
 		Input:  0.15, // $0.15 za 1M tokenów
 		Output: 0.6,  // $0.6 za 1M tokenów
 	}
+	modelPricing["gpt-4.1"] = ModelPricing{
+		Model:  "gpt-4.1",
+		Input:  2.0,
+		Output: 8.0,
+	}
+	modelPricing["o3"] = ModelPricing{
+		Model:  "o3",
+		Input:  2.0,
+		Output: 8.0,
+	}
+	modelPricing["o4-mini"] = ModelPricing{
+		Model:  "o4-mini",
+		Input:  1.1,
+		Output: 4.4,
+	}
+	modelPricing["gpt-3.5-turbo"] = ModelPricing{
+		Model:  "gpt-3.5-turbo",
+		Input:  0.5,
+		Output: 1.5,
+	}
+	
+	// Generate allowed prefixes from test models
+	generateAllowedPrefixes()
 }
 
 func createTestCSV(filename string, content string) error {

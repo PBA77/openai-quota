@@ -415,8 +415,8 @@ func TestMemoryUsage(t *testing.T) {
 	}
 
 	// Check we can still access them
-	if len(modelPricing) != 1002 { // 1000 + 2 from resetGlobalState
-		t.Errorf("Expected 1002 models, got %d", len(modelPricing))
+	if len(modelPricing) != 1006 { // 1000 + 6 from resetGlobalState
+		t.Errorf("Expected 1006 models, got %d", len(modelPricing))
 	}
 
 	// Check memory doesn't leak on repeated access
