@@ -1,0 +1,13 @@
+model,version,input,cached_input,output
+gpt-4.1,gpt-4.1-2025-04-14,2.0,0.5,8.0
+gpt-4.1-mini,gpt-4.1-mini-2025-04-14,0.4,0.1,1.6
+gpt-4.1-nano,gpt-4.1-nano-2025-04-14,0.1,0.025,0.4
+gpt-4.5-preview,gpt-4.5-preview-2025-02-27,75.0,37.5,150.0
+gpt-4o,gpt-4o-2024-08-06,2.5,1.25,10.0
+gpt-4o-mini,gpt-4o-mini-2024-07-18,0.15,0.075,0.6
+gpt-4o-realtime-preview,gpt-4o-realtime-preview-2025-06-03,5.0,2.5,20.0
+o3,o3-2025-04-16,2.0,0.5,8.0
+o3-pro,o3-pro-2025-06-10,20.0,,80.0
+o3-deep-research,o3-deep-research-2025-06-26,10.0,2.5,40.0
+o4-mini,o4-mini-2025-04-16,1.1,0.275,4.4
+gpt-image-1,gpt-image-1,5.0,1.25,
