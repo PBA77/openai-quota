@@ -29,9 +29,9 @@ var (
 type ModelPricing struct {
 	Model       string  `json:"model"`
 	Version     string  `json:"version"`
-	Input       float64 `json:"input"`        // cena za 1M tokenów input
-	CachedInput float64 `json:"cached_input"` // cena za 1M tokenów cached input
-	Output      float64 `json:"output"`       // cena za 1M tokenów output
+	Input       float64 `json:"input"`        // price per 1M input tokens
+	CachedInput float64 `json:"cached_input"` // price per 1M cached input tokens
+	Output      float64 `json:"output"`       // price per 1M output tokens
 }
 
 type ChatMessage struct {
@@ -102,7 +102,7 @@ func loadModelPricing(filename string) error {
 		return fmt.Errorf("CSV file must contain at least header and one data row")
 	}
 
-	// Pomijamy nagłówek (pierwszy wiersz)
+	// Skip header (first row)
 	for i := 1; i < len(records); i++ {
 		record := records[i]
 		if len(record) < 5 {
@@ -119,7 +119,7 @@ func loadModelPricing(filename string) error {
 			continue
 		}
 
-		cachedInput, _ := parseFloat(record[3]) // może być puste
+		cachedInput, _ := parseFloat(record[3]) // may be empty
 
 		output, err := parseFloat(record[4])
 		if err != nil {
@@ -136,7 +136,7 @@ func loadModelPricing(filename string) error {
 		}
 
 		modelPricing[model] = pricing
-		// Również dodaj pod pełną nazwą wersji, jeśli się różni
+		// Also add under full version name if different
 		if version != "" && version != model {
 			modelPricing[version] = pricing
 		}
@@ -190,23 +190,23 @@ func parseFloat(s string) (float64, error) {
 }
 
 func getPricingForModel(model string) (ModelPricing, bool) {
-	// Sprawdź bezpośrednie dopasowanie
+	// Check direct match
 	if pricing, exists := modelPricing[model]; exists {
 		return pricing, true
 	}
 
-	// Sprawdź prefiksy (np. gpt-4o-2024-08-06 -> gpt-4o)
+	// Check prefixes (e.g. gpt-4o-2024-08-06 -> gpt-4o)
 	for modelKey, pricing := range modelPricing {
 		if strings.HasPrefix(model, modelKey) {
 			return pricing, true
 		}
 	}
 
-	// Fallback - domyślne ceny GPT-4
+	// Fallback - default GPT-4 prices
 	return ModelPricing{
 		Model:  "default",
-		Input:  30.0, // $30 za 1M tokenów
-		Output: 60.0, // $60 za 1M tokenów
+		Input:  30.0, // $30 per 1M tokens
+		Output: 60.0, // $60 per 1M tokens
 	}, false
 }
 
@@ -216,7 +216,7 @@ func calculateCost(promptTokens, completionTokens int, model string) float64 {
 		log.Printf("Pricing not found for model %s, using defaults", model)
 	}
 
-	// Ceny w CSV są za 1M tokenów, więc dzielimy przez 1,000,000
+	// Prices in CSV are per 1M tokens, so divide by 1,000,000
 	costPrompt := float64(promptTokens) * (pricing.Input / 1000000.0)
 	costCompletion := float64(completionTokens) * (pricing.Output / 1000000.0)
 
@@ -309,7 +309,7 @@ func chatCompletionsProxy(c *gin.Context) {
 		return
 	}
 
-	// Pobierz klucz API z nagłówka Authorization
+	// Get API key from Authorization header
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {
 		c.JSON(http.StatusUnauthorized, ErrorResponse{
@@ -318,7 +318,7 @@ func chatCompletionsProxy(c *gin.Context) {
 		return
 	}
 
-	// Sprawdź format nagłówka Authorization
+	// Check Authorization header format
 	if !strings.HasPrefix(authHeader, "Bearer ") {
 		c.JSON(http.StatusUnauthorized, ErrorResponse{
 			Error: "Invalid Authorization header format. Use: Authorization: Bearer your-api-key",
@@ -349,10 +349,10 @@ func chatCompletionsProxy(c *gin.Context) {
 		return
 	}
 
-	// Oblicz tokeny promptu przed wywołaniem API
+	// Calculate prompt tokens before API call
 	promptTokens := calculateTokensFromMessages(reqData.Messages, reqData.Model)
 
-	// Sprawdź czy sam prompt nie przekroczy limitu kosztów
+	// Check if prompt alone would exceed cost limit
 	promptCost := calculateCost(promptTokens, 0, reqData.Model)
 	if totalCost+promptCost >= costLimitUSD {
 		log.Printf("Request blocked: prompt would exceed quota, prompt_tokens=%d, prompt_cost=$%.6f, current_cost=$%.6f, limit=$%.6f",
@@ -365,8 +365,8 @@ func chatCompletionsProxy(c *gin.Context) {
 
 	response, err := callOpenAI(reqData, apiKey)
 	if err != nil {
-		// Nawet jeśli request do OpenAI się nie powiódł, policz tokeny dla logowania
-		costTotalRequest := calculateCost(promptTokens, 0, reqData.Model) // brak completion tokenów
+		// Even if OpenAI request failed, count tokens for logging
+		costTotalRequest := calculateCost(promptTokens, 0, reqData.Model) // no completion tokens
 
 		log.Printf("Failed request: model=%s, prompt_tokens=%d, completion_tokens=0, estimated_cost=$%.6f, total_cost=$%.6f, remaining=$%.6f, error=%v",
 			reqData.Model, promptTokens, costTotalRequest, totalCost, costLimitUSD-totalCost, err)
@@ -377,7 +377,7 @@ func chatCompletionsProxy(c *gin.Context) {
 		return
 	}
 
-	// Aktualizuj tokeny z odpowiedzi API (mogą być dokładniejsze)
+	// Update tokens from API response (may be more accurate)
 	if response.Usage.PromptTokens > 0 {
 		promptTokens = response.Usage.PromptTokens
 	}
@@ -397,7 +397,7 @@ func chatCompletionsProxy(c *gin.Context) {
 
 	totalCost += costTotalRequest
 
-	// Logowanie szczegółowych informacji o zużyciu
+	// Log detailed usage information
 	log.Printf("Request: model=%s, prompt_tokens=%d, completion_tokens=%d, cost=$%.6f, total_cost=$%.6f, remaining=$%.6f",
 		reqData.Model, promptTokens, completionTokens, costTotalRequest, totalCost, costLimitUSD-totalCost)
 
@@ -434,7 +434,7 @@ func pricing(c *gin.Context) {
 }
 
 func main() {
-	// Parsowanie argumentów wiersza poleceń
+	// Parse command line arguments
 	var (
 		quota       = flag.Float64("quota", 2.0, "Global cost limit in USD")
 		port        = flag.String("port", "8123", "Port to run server on")

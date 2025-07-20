@@ -50,16 +50,16 @@ func resetGlobalState() {
 	costLimitUSD = 2.0
 	modelPricing = make(map[string]ModelPricing)
 
-	// Dodaj domyślne ceny testowe
+	// Add default test prices
 	modelPricing["gpt-4o"] = ModelPricing{
 		Model:  "gpt-4o",
-		Input:  2.5,  // $2.5 za 1M tokenów
-		Output: 10.0, // $10 za 1M tokenów
+		Input:  2.5,  // $2.5 per 1M tokens
+		Output: 10.0, // $10 per 1M tokens
 	}
 	modelPricing["gpt-4o-mini"] = ModelPricing{
 		Model:  "gpt-4o-mini",
-		Input:  0.15, // $0.15 za 1M tokenów
-		Output: 0.6,  // $0.6 za 1M tokenów
+		Input:  0.15, // $0.15 per 1M tokens
+		Output: 0.6,  // $0.6 per 1M tokens
 	}
 	modelPricing["gpt-4.1"] = ModelPricing{
 		Model:  "gpt-4.1",
