@@ -369,7 +369,7 @@ func TestErrorResponseFormats(t *testing.T) {
 
 func TestPerformanceBaseline(t *testing.T) {
 	resetGlobalState()
-	
+
 	// Benchmark token calculation - be realistic about tiktoken performance
 	start := time.Now()
 	for i := 0; i < 100; i++ {

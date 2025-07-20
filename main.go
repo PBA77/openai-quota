@@ -401,7 +401,7 @@ func main() {
 	// Parsowanie argumentów wiersza poleceń
 	var (
 		quota       = flag.Float64("quota", 2.0, "Global cost limit in USD")
-		port        = flag.String("port", "5000", "Port to run server on")
+		port        = flag.String("port", "8123", "Port to run server on")
 		pricingFile = flag.String("pricing", "config/model_pricing.csv", "Path to CSV file with model pricing")
 		help        = flag.Bool("help", false, "Show help")
 		h           = flag.Bool("h", false, "Show help (short)")
@@ -419,7 +419,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "  %s -quota 5.0 -port 8080\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "  %s -quota 10.0 -pricing custom_pricing.csv\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "\nExample request:\n")
-		fmt.Fprintf(os.Stderr, "  curl -X POST http://localhost:5000/v1/chat/completions \\\n")
+		fmt.Fprintf(os.Stderr, "  curl -X POST http://localhost:8123/v1/chat/completions \\\n")
 		fmt.Fprintf(os.Stderr, "       -H \"Authorization: Bearer your-api-key\" \\\n")
 		fmt.Fprintf(os.Stderr, "       -H \"Content-Type: application/json\" \\\n")
 		fmt.Fprintf(os.Stderr, "       -d '{\"model\":\"gpt-4o\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n")
