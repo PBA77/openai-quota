@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	_ "embed"
 	"encoding/csv"
 	"encoding/json"
 	"flag"
@@ -17,6 +18,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/pkoukk/tiktoken-go"
 )
+
+//go:embed config/model_pricing.csv
+var embeddedPricingData string
 
 var (
 	allowedModelPrefixes []string
@@ -86,13 +90,26 @@ type ErrorResponse struct {
 }
 
 func loadModelPricing(filename string) error {
-	file, err := os.Open(filename)
-	if err != nil {
-		return fmt.Errorf("cannot open pricing file: %w", err)
+	var csvData string
+	
+	// Try to use embedded data first, fallback to file if needed
+	if embeddedPricingData != "" {
+		csvData = embeddedPricingData
+	} else {
+		file, err := os.Open(filename)
+		if err != nil {
+			return fmt.Errorf("cannot open pricing file: %w", err)
+		}
+		defer file.Close()
+		
+		data, err := io.ReadAll(file)
+		if err != nil {
+			return fmt.Errorf("error reading file: %w", err)
+		}
+		csvData = string(data)
 	}
-	defer file.Close()
 
-	reader := csv.NewReader(file)
+	reader := csv.NewReader(strings.NewReader(csvData))
 	records, err := reader.ReadAll()
 	if err != nil {
 		return fmt.Errorf("error reading CSV: %w", err)
