@@ -470,7 +470,7 @@ func main() {
 	log.Printf("Starting server on port %s with quota limit: $%.2f", *port, costLimitUSD)
 	log.Printf("Loaded pricing for models: %v", getAvailableModels())
 
-	if err := r.Run("127.0.0.1:" + *port); err != nil {
+	if err := r.Run(":" + *port); err != nil {
 		log.Fatal("Failed to start server:", err)
 	}
 }
