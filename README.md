@@ -235,3 +235,16 @@ The server logs detailed information about each request:
 - `400 Bad Request` - Invalid JSON or disallowed model
 - `429 Too Many Requests` - Cost limit exceeded
 - `500 Internal Server Error` - OpenAI API error
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+### Dependencies
+
+This project uses the following open source dependencies:
+
+- **github.com/gin-gonic/gin v1.9.1** - MIT License (web framework)
+- **github.com/pkoukk/tiktoken-go v0.1.6** - MIT License (token counting)
+
+All dependencies are MIT licensed and fully compatible with this project's licensing.
